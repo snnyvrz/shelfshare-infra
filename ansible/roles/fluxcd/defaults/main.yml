@@ -9,7 +9,7 @@ flux_cli_install_path: /usr/local/bin/flux
 k3s_kubeconfig_path: "/etc/rancher/k3s/k3s.yaml"
 
 # For bootstrapping
-flux_git_repo_name: "shelfshare"
+flux_git_repo_name: "shelfshare-infra"
 flux_git_branch: "main"
 flux_git_path: "clusters/{{ flux_cluster_name }}"
 

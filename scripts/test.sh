@@ -5,7 +5,7 @@ SERVICE="${1:-}"
 
 case "$SERVICE" in
     books)
-        bun x nx affected --target=test || true
+        bun x nx run books-service:test
         ;;
 
     "")

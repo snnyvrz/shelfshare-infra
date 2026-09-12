@@ -1,7 +1,6 @@
 import type { UserDoc } from "@auth/models/User";
 import jwt from "jsonwebtoken";
-
-const JWT_SECRET = process.env.JWT_SECRET || "dev_secret";
+import { getJwtSecret } from "@auth/config/auth.config";
 const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || 3600;
 
 export const signToken = (user: UserDoc) => {
@@ -11,7 +10,7 @@ export const signToken = (user: UserDoc) => {
 
     return jwt.sign(
         { sub: user._id.toString(), email: user.email },
-        JWT_SECRET,
+        getJwtSecret(),
         {
             expiresIn: Number(JWT_EXPIRES_IN),
         }

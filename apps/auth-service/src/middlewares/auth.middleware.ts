@@ -1,7 +1,6 @@
 import type { NextFunction, Request, Response } from "express";
 import jwt from "jsonwebtoken";
-
-const JWT_SECRET = process.env.JWT_SECRET || "dev_secret";
+import { getJwtSecret } from "@auth/config/auth.config";
 
 export const authMiddleware = (
     req: Request,
@@ -11,7 +10,7 @@ export const authMiddleware = (
     const authHeader = req.get("authorization");
     if (!authHeader) {
         return res
-            .sendStatus(401)
+            .status(401)
             .json({ error: "Missing Authorization header" });
     }
 
@@ -21,7 +20,7 @@ export const authMiddleware = (
     }
 
     try {
-        const payload = jwt.verify(token, JWT_SECRET);
+        const payload = jwt.verify(token, getJwtSecret());
 
         if (
             typeof payload !== "object" ||
