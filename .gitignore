@@ -23,3 +23,7 @@ secrets.env
 .github/instructions/nx.instructions.md
 
 .terraform/
+
+# Generated local-production TLS material.
+infra/certs/*
+!infra/certs/.gitkeep

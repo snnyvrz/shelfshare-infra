@@ -15,20 +15,25 @@ services:
     volumes:
       - shelfshare_pg_data_localprod:/var/lib/postgresql
 
-    envoy:
-      image: envoyproxy/envoy:v1.32-latest
-      container_name: shelfshare-envoy-postgres-localprod
-      restart: unless-stopped
-      depends_on:
-        postgres:
-          condition: service_healthy
-      volumes:
-        - ./infra/envoy/postgres-envoy.yaml:/etc/envoy/envoy.yaml:ro
-        - ./infra/certs/postgres-envoy.crt:/etc/envoy/certs/tls.crt:ro
-        - ./infra/certs/postgres-envoy.key:/etc/envoy/certs/tls.key:ro
-        - ./infra/certs/ca.crt:/etc/envoy/certs/ca.crt:ro
-      ports:
-        - "${ENVOY_PORT}:15432"
+  envoy:
+    image: envoyproxy/envoy:v1.32-latest
+    container_name: shelfshare-envoy-postgres-localprod
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ./infra/envoy/postgres-envoy.yaml:/etc/envoy/envoy.yaml:ro
+      - ./infra/certs/postgres-envoy.crt:/etc/envoy/certs/tls.crt:ro
+      - ./infra/certs/postgres-envoy.key:/etc/envoy/certs/tls.key:ro
+      - ./infra/certs/ca.crt:/etc/envoy/certs/ca.crt:ro
+    healthcheck:
+      test: ["CMD", "envoy", "--mode", "validate", "-c", "/etc/envoy/envoy.yaml"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    ports:
+      - "${ENVOY_PORT}:15432"
 
   books-service:
     build:
@@ -37,7 +42,7 @@ services:
     container_name: shelfshare-books-service-localprod
     restart: unless-stopped
     depends_on:
-      postgres:
+      envoy:
         condition: service_healthy
     environment:
       ENV: ${ENV}

@@ -72,7 +72,7 @@ define wait_for_postgres
 endef
 
 .PHONY: dev
-dev: check_configured deecrypt-secrets
+dev: check_configured decrypt-secrets
 dev: ## Run development environment
 	./scripts/dev.sh $(filter-out $@,$(MAKECMDGOALS))
 
@@ -133,11 +133,16 @@ logs: ENV_FILE=$(ENV_DEV)
 logs: ## Show logs for infra services
 	$(DC) logs -f
 
+.PHONY: localprod-certs
+localprod-certs: check_configured
+localprod-certs: ## Generate local-production Envoy certificates
+	./scripts/generate-localprod-certs.sh
+
 .PHONY: books-localprod
-books-localprod: check_configured decrypt-secrets
+books-localprod: check_configured decrypt-secrets localprod-certs
 books-localprod: ## Run local production stack (Postgres + books-api)
 	@set -e
-	echo "Starting localprod stack (Postgres + books-api)..."
+	echo "Starting localprod stack (Postgres + Envoy + books-api)..."
 
 	cleanup() {
 		echo ""
