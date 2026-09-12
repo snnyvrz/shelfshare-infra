@@ -11,7 +11,7 @@ dist/
 tmp/
 
 coverage/
-docs/
+docs/generated/
 
 .env.dev
 .env.localprod

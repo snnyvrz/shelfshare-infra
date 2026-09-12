@@ -1,0 +1,35 @@
+name: Infrastructure Validation
+
+on:
+  push:
+    branches: [main, dev]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Helm
+        uses: azure/setup-helm@v4
+
+      - name: Setup Kustomize
+        uses: imranismail/setup-kustomize@v2
+
+      - name: Validate charts
+        run: |
+          helm lint charts/books-service
+          helm lint charts/envoy
+
+      - name: Render cluster manifests
+        run: |
+          kustomize build clusters/local >/dev/null
+          kustomize build clusters/production >/dev/null
+
+      - name: Validate Ansible
+        run: ansible-playbook --syntax-check ansible/playbooks/site.yml
