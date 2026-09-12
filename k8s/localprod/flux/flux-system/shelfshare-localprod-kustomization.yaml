@@ -9,7 +9,7 @@ spec:
     kind: GitRepository
     name: flux-system
     namespace: flux-system
-  path: ./k8s/localprod/apps
+  path: ./k8s/localprod
   prune: true
   targetNamespace: shelfshare-localprod
   decryption:
