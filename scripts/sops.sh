@@ -3,7 +3,8 @@
 set -euo pipefail
 
 usage() {
-    echo "Usage: $0 <encrypt|decrypt|encrypt-staged>" >&2
+    echo "Usage: $0 <encrypt|encrypt-staged> [FILE...]" >&2
+    echo "       $0 decrypt --output-dir DIR FILE..." >&2
     exit 1
 }
 
@@ -13,27 +14,6 @@ else
     COMMAND="$1"
     shift || true
 fi
-
-collect_sops_files_all() {
-    mapfile -t FILES < <(find . -type f -name "*.sops.*" || true)
-
-    if [ "${#FILES[@]}" -eq 0 ]; then
-        return 0
-    fi
-
-    local filtered=()
-    for FILE in "${FILES[@]}"; do
-        local base
-        base="$(basename "$FILE")"
-        if [ "$base" = ".sops.yaml" ] || [ "$base" = ".sops.yml" ]; then
-            echo "[SKIP] SOPS config file (not a secret): $FILE"
-            continue
-        fi
-        filtered+=("$FILE")
-    done
-
-    FILES=("${filtered[@]}")
-}
 
 collect_sops_files_staged() {
     mapfile -t FILES < <(
@@ -71,14 +51,11 @@ is_encrypted_staged() {
 }
 
 encrypt_all() {
-    collect_sops_files_all
-
     if [ "${#FILES[@]}" -eq 0 ]; then
-        echo "No .sops.* files found."
-        return 0
+        usage
     fi
-
     for FILE in "${FILES[@]}"; do
+        validate_secret_path "$FILE"
         if is_encrypted "$FILE"; then
             echo "[SKIP] Already encrypted: $FILE"
         else
@@ -88,22 +65,50 @@ encrypt_all() {
     done
 }
 
-decrypt_all() {
-    collect_sops_files_all
-
-    if [ "${#FILES[@]}" -eq 0 ]; then
-        echo "No .sops.* files found."
-        return 0
+decrypt_to_dir() {
+    local output_dir=""
+    if [ "${1:-}" = "--output-dir" ] && [ "$#" -ge 2 ]; then
+        output_dir="$2"
+        shift 2
+    else
+        echo "decrypt requires --output-dir DIR and at least one file" >&2
+        usage
     fi
 
+    if [ "$#" -eq 0 ] || [ ! -d "$output_dir" ]; then
+        echo "decrypt output directory must exist and files must be specified" >&2
+        usage
+    fi
+
+    FILES=("$@")
     for FILE in "${FILES[@]}"; do
+        validate_secret_path "$FILE"
         if is_encrypted "$FILE"; then
-            echo "[DEC] Decrypting: $FILE"
-            sops --decrypt --in-place "$FILE"
+            local output_file="$output_dir/$(basename "$FILE")"
+            if [ -e "$output_file" ]; then
+                echo "Refusing to overwrite temporary output: $output_file" >&2
+                exit 1
+            fi
+            echo "[DEC] Decrypting to temporary file: $output_file"
+            sops --decrypt "$FILE" > "$output_file"
         else
             echo "[SKIP] Not encrypted: $FILE"
         fi
     done
+}
+
+validate_secret_path() {
+    local file="$1"
+    local base
+    base="$(basename "$file")"
+    if [[ "$file" != *.sops.* ]] || [ "$base" = ".sops.yaml" ] || [ "$base" = ".sops.yml" ]; then
+        echo "Not a SOPS secret path: $file" >&2
+        exit 1
+    fi
+    if [ ! -f "$file" ]; then
+        echo "SOPS secret does not exist: $file" >&2
+        exit 1
+    fi
 }
 
 encrypt_staged() {
@@ -149,10 +154,12 @@ encrypt_staged() {
 
 case "$COMMAND" in
     encrypt)
+        FILES=("$@")
         encrypt_all
         ;;
     decrypt)
-        decrypt_all
+        FILES=("$@")
+        decrypt_to_dir "${FILES[@]}"
         ;;
     encrypt-staged)
         encrypt_staged

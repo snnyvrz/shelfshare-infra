@@ -33,6 +33,9 @@ jobs:
         working-directory: ansible
         run: ansible-galaxy collection install -r collections/requirements.yml
 
+      - name: Validate SOPS workflow
+        run: bash tests/sops.sh
+
       - name: Validate charts
         run: |
           helm lint charts/books-service

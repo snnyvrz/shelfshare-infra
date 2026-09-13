@@ -23,6 +23,8 @@ secrets.env
 .github/instructions/nx.instructions.md
 
 .terraform/
+*.tfstate
+*.tfstate.*
 
 # Generated local-production TLS material.
 infra/certs/*
