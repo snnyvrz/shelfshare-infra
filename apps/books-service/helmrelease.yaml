@@ -1,0 +1,26 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: books-service
+  namespace: shelfshare-localprod
+spec:
+  interval: 5m
+  chart:
+    spec:
+      chart: ./charts/books-service
+      sourceRef:
+        kind: GitRepository
+        name: flux-system
+        namespace: flux-system
+  values:
+    fullnameOverride: books-service
+    image:
+      repository: ghcr.io/snnyvrz/shelfshare-books-service
+      tag: "0.1.72" # {"$imagepolicy": "flux-system:books-service"}
+      pullPolicy: IfNotPresent
+    imagePullSecrets:
+      - name: ghcr-credentials
+    existingEnvSecret: books-service-secret
+    env:
+      GIN_MODE: release
+      TZ: Europe/Berlin

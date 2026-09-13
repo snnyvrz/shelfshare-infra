@@ -1,3 +1,0 @@
-scripts/sops.sh encrypt-staged
-
-bun x lint-staged

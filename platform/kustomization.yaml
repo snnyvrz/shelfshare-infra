@@ -1,0 +1,15 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - namespace.yaml
+  - sources/postgres-oci.yaml
+  - sources/postgres-helmrepository.yaml
+  - sources/traefik-helmrepository.yaml
+  - storage/postgres-helmrelease.yaml
+  - storage/postgres-values.sops.yaml
+  - networking/traefik-helmrelease.yaml
+  - networking/traefik-values.sops.yaml
+  - networking/envoy-helmrelease.yaml
+  - controllers/image-repository-books-service.yaml
+  - controllers/image-policy-books-service.yaml
+  - controllers/image-update-automation.yaml
