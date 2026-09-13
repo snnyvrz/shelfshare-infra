@@ -8,4 +8,4 @@ spec:
     name: books-service
   policy:
     semver:
-      range: "0.1.x"
+      range: "0.2.x"

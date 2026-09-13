@@ -2,7 +2,7 @@ replicaCount: 1
 
 image:
   repository: ghcr.io/snnyvrz/shelfshare-books-service
-  tag: "0.1.72" # {"$imagepolicy": "flux-system:books-service"}
+  tag: "0.2.0" # {"$imagepolicy": "flux-system:books-service"}
   pullPolicy: IfNotPresent
 
 imagePullSecrets:

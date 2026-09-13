@@ -10,7 +10,7 @@ tests, Dockerfiles, image builds, and application CI live in
 - `apps/` contains application deployment manifests only.
 - `charts/` contains reusable Helm charts.
 - `clusters/` contains Flux entry points for local and production.
-- `compose/` contains local infrastructure dependencies only.
+- Local development infrastructure belongs in the application repository.
 - `platform/` contains shared controllers, networking, storage, and sources.
 
 Do not add application source or image-building workflows here.

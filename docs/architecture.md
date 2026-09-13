@@ -9,5 +9,4 @@ Application source, tests, Dockerfiles, and image builds live in
 - `platform/` contains shared cluster resources and chart sources.
 - `apps/` contains application HelmReleases and encrypted runtime secrets.
 - `charts/` contains reusable Helm charts.
-- `compose/` contains local infrastructure only.
 - `terraform/` contains cloud provisioning when a provider is active.

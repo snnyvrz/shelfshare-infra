@@ -10,11 +10,11 @@ tests, Dockerfiles, image builds, and application CI live in
 - `apps/`: application HelmReleases and encrypted runtime secrets
 - `charts/`: reusable Helm charts
 - `clusters/`: Flux entry points for local and production
-- `compose/`: local infrastructure dependencies
 - `platform/`: shared controllers, networking, storage, and chart sources
 - `docs/`: setup, architecture, backup, restore, and troubleshooting
 
-Production uses K3s and Flux. Compose is for local infrastructure only.
+Production uses K3s and Flux. Local development dependencies are managed by the
+application repository.
 
 ## Operations
 
@@ -144,7 +144,7 @@ Flux image automation updates the `tag` setter in
 that value while preserving the image-policy comment:
 
 ```yaml
-tag: "0.1.71" # {"$imagepolicy": "flux-system:books-service"}
+tag: "0.2.0" # {"$imagepolicy": "flux-system:books-service"}
 ```
 
 Commit and push the change to `main`, then reconcile the source and release:
@@ -162,7 +162,7 @@ kubectl get deployment books-service -n shelfshare-localprod \
 ```
 
 Image automation runs every minute and may replace a manually selected tag if
-the tag satisfies the `0.1.x` image policy. If the rollback must remain in
+the tag satisfies the `0.2.x` image policy. If the rollback must remain in
 place, suspend the image automation before changing the tag and resume it only
 after the incident:
 
